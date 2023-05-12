@@ -1,0 +1,98 @@
+
+-- 1.	Используем таблицу employees1.
+-- 	Нужно повысить зарплаты для отдела sales на 20%, для finance 15%, для shipping 10%, для marketing 25%, для HR 20% и для IT 35%. 
+select * from employees1;
+set sql_safe_updates = 0;
+
+-- 	Записать данные в поле new_salary. Поле создавать не нужно, используем AS. 
+select *, 
+case
+when department like 'sales' then 1.2*salary
+when department like 'finance' then 1.15*salary
+when department like 'shipping' then 1.1*salary 
+when department like 'marketing' then 1.25*salary
+when department like 'HR' then 1.2*salary
+when department like 'IT' then 1.35*salary
+end as new_salary
+from employees1;
+-- 2.	Создать поле new_salary numeric(7, 2), заполнить.
+alter table employees1
+add column new_salary numeric(7, 2);
+
+update employees1
+set new_salary = 
+case
+when department like 'sales' then 1.2*salary
+when department like 'finance' then 1.15*salary
+when department like 'shipping' then 1.1*salary 
+when department like 'marketing' then 1.25*salary
+when department like 'HR' then 1.2*salary
+when department like 'IT' then 1.35*salary
+end;
+select * from employees1;
+-- 3.	Используем таблицу customers.
+-- 	Создать поле sale integer. 
+alter table customers
+add column sale int;
+-- 4.	Заполнить поле:
+-- 	Если sum_price < 5000 скидка null, если больше/равно 5000 и меньше 10000, скидка  5, если больше/равно 10000, скидка 10.
+set sql_safe_updates = 0;
+update customers
+set sale=
+case
+when sum_price >= 5000 then 5
+when sum_price >= 10000 then 10
+else null 
+end;
+
+select * from customers;
+
+-- 5.	Создать поле final_price. Заполнить поле соответственно, сделав скидки.
+alter table customers
+add column final_price int;
+
+update customers
+set final_price = (100 - sale)/100*sum_price;
+
+-- 6.	В order_name поменять math_book на mathematics_book, eng_book на english_book.
+update customers
+set order_name =
+case
+when order_name like '%math_book, eng_book%' then replace(order_name, 'math_book, eng_book', 'mathematics_book, english_book')
+when order_name like'%math_book%' then replace(order_name, 'math_book', 'mathematics_book')
+when order_name like '%eng_book%' then replace(order_name, 'eng_book', 'english_book')
+
+else order_name
+end;
+select * from customers;
+
+-- 7.	Вывести случайные числа от 1 до 10.
+select round(rand(), 1)*10 as rand;
+-- 8.	Используем таблицу employees1.
+-- 	Имя и фамилию соединить в новое поле full_name.
+alter table employees1
+add full_name varchar(100);
+
+update employees1
+set full_name = concat(first_name, ' ', last_name);
+
+-- 9.	Поле email перевести в нижний регистр.
+update employees1
+set email = lower(email);
+
+select * from employees1;
+-- 10. Используем бд sakila
+use sakila;
+-- 11. Используем таблицу film
+-- В description слово beautiful заменить словом amazing.
+select * from film;
+update film
+set description =
+case
+when description like '%beautiful%' then replace(description, 'beautiful', 'amazing')
+else description
+end;
+
+-- 12. Вывести поле title_len (количество символов поле title).customerscustomers1
+select length(title) as title_len
+from film;
